@@ -1,5 +1,8 @@
 package com.wxqts.domain;
-
+/**
+* @author zhoulong  E-mail:zhoulong@163.com
+* @date 2018年4月18日
+*/
 import java.io.Serializable;
 
 public class User implements Serializable {

@@ -1,5 +1,8 @@
 package com.wxqts.placeholder;
-
+/**
+* @author zhoulong  E-mail:zhoulong@163.com
+* @date 2018年4月18日
+*/
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 
 public class EncryptPropertyPlaceholderConfigurer extends PropertyPlaceholderConfigurer {	
@@ -8,7 +11,7 @@ public class EncryptPropertyPlaceholderConfigurer extends PropertyPlaceholderCon
 	@Override
 	protected String convertProperty(String propertyName, String propertyValue) {		
 		if(isEncryptProp(propertyName)){
-			String decryptValue = DESUtils.getDecryptString(propertyValue);
+			String decryptValue = DesUtils.getDecryptString(propertyValue);
 //			System.out.println(decryptValue);
 			return decryptValue;
 		}else{

@@ -1,5 +1,9 @@
 package com.wxqts.placeholder;
 
+/**
+* @author zhoulong  E-mail:zhoulong@163.com
+* @date 2018年4月18日
+*/
 import java.security.Key;
 import java.security.SecureRandom;
 
@@ -9,7 +13,7 @@ import javax.crypto.KeyGenerator;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
 
-public class DESUtils {
+public class DesUtils {
 	private static Key key;
 	private static String KEY_STR = "myKey";
 	static {
@@ -65,8 +69,8 @@ public class DESUtils {
 	public static void main(String[] args) throws Exception {
 		String arg = "123456";
 		System.out.println(arg + ":" + getEncryptString(arg));
-		
-		//System.out.println(getDecryptString("WnplV/ietfQ="));
-		//System.out.println(getDecryptString("gJQ9O+q34qk="));
+
+		// System.out.println(getDecryptString("WnplV/ietfQ="));
+		// System.out.println(getDecryptString("gJQ9O+q34qk="));
 	}
 }
