@@ -8,7 +8,7 @@ import java.io.Serializable;
 public class User implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private int userId;
-	private String userName;
+	private String username;
 	private String password;
 
 	public int getUserId() {
@@ -19,12 +19,12 @@ public class User implements Serializable {
 		this.userId = userId;
 	}
 
-	public String getUserName() {
-		return userName;
+	public String getUsername() {
+		return username;
 	}
 
-	public void setUserName(String userName) {
-		this.userName = userName;
+	public void setUserName(String username) {
+		this.username = username;
 	}
 
 	public String getPassword() {

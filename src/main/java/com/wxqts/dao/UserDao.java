@@ -17,7 +17,7 @@ public interface UserDao {
 	 * 
 	 * @return User 用户
 	 */
-	User getUserByUserName(String username);
+	User getUserByUsername(String username);
 
 	/**
 	 * 根据用户名查找用户
@@ -26,7 +26,7 @@ public interface UserDao {
 	 * 
 	 * @return List<User> 用户列表
 	 */
-	List<User> queryUserByUserName(String username);
+	List<User> queryUserByUsername(String username);
 
 	
 	/** 查找所有用户
@@ -50,8 +50,8 @@ public interface UserDao {
 	void remove(User t);
 
 	/**根据用户ID查找用户
-	 * @param objectId 用户ID
+	 * @param userId 用户ID
 	 * @return User 用户
 	 */
-	User get(int objectId);
+	User get(int userId);
 }

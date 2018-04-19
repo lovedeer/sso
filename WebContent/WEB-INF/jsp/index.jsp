@@ -5,9 +5,9 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>test</title>
+<title>index</title>
 </head>
 <body>
-	${user.userName} 
+	${username}
 </body>
 </html>

@@ -5,6 +5,7 @@ import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.SimpleAuthenticationInfo;
 import org.apache.shiro.authz.AuthorizationInfo;
+import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.authz.UnauthenticatedException;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import com.wxqts.domain.User;
 import com.wxqts.service.UserService;
+import com.wxqts.shiro.permission.AppPermission;
 
 /**
  * @author zhoulong E-mail:zhoulong@163.com
@@ -29,8 +31,11 @@ public class UserRealm extends AuthorizingRealm {
 
 	@Override
 	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-		// TODO Auto-generated method stub
-		return null;
+		SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
+		String username = principals.getPrimaryPrincipal().toString();
+		authorizationInfo.addObjectPermission(new AppPermission(userService.getAppUrlByUsername(username)));
+
+		return authorizationInfo;
 	}
 
 	@Override
@@ -38,18 +43,18 @@ public class UserRealm extends AuthorizingRealm {
 		if (logger.isDebugEnabled()) {
 			logger.debug("用户登录认证");
 		}
-		String userName = token.getPrincipal().toString();
+		String username = token.getPrincipal().toString();
 		if (logger.isDebugEnabled()) {
-			logger.debug("userName: " + userName);
+			logger.debug("userName: " + username);
 		}
-		User user = userService.getUserByUserName(userName);
+		User user = userService.getUserByUsername(username);
 		if (user != null) {
 			String password = new String((char[]) token.getCredentials());
 			if (logger.isDebugEnabled()) {
 				logger.debug("password: " + password);
 			}
 			if (user.getPassword().equals(password)) {
-				return new SimpleAuthenticationInfo(userName, password, "userRealm");
+				return new SimpleAuthenticationInfo(username, password, "userRealm");
 			}
 		}
 
