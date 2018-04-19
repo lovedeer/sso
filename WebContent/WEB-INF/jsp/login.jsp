@@ -7,7 +7,7 @@
 <title>登录</title>
 </head>
 <body>
-	<form id="form" action="login?appUrl=http://127.0.0.1:8080/sso/index" method="post">
+	<form id="form" action="login" method="post">
 		<table>
 			<tr>
 				<td>用户名：</td><td><input type="text" name="username"/></td>

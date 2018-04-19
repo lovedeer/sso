@@ -7,24 +7,26 @@
 
 	<!-- Realm实现 -->
 	<bean id="userRealm" class="com.wxqts.shiro.realm.UserRealm"></bean>
-	
+
 	<!-- 自定义过滤器 -->
 	<bean id="ssoFormAuthenticationFilter" class="com.wxqts.shiro.filter.SsoFormAuthenticationFilter"></bean>
+	<bean id="appPermissionFilter" class="com.wxqts.shiro.filter.AppPermissionFilter"></bean>
 	
 	<!-- 自定义权限解析器 -->
 	<bean id="appPermissionResolver" class="com.wxqts.shiro.permission.AppPermissionResolver"></bean>
-	
+
 	<!-- 安全管理器 -->
 	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
 		<property name="realm" ref="userRealm" />
-		 <property name="authorizer.permissionResolver" ref="appPermissionResolver"/>
+		<property name="authorizer.permissionResolver" ref="appPermissionResolver" />
 	</bean>
 
 	<!-- Shiro过滤器定义 -->
 	<bean name="shiroFilterChainDefinitions" class="java.lang.String">
 		<constructor-arg>
 			<value>
-				/static/** = anon
+				/index = anon
+				/app = authc,perms
 				/login = authc
 			</value>
 		</constructor-arg>
@@ -34,9 +36,11 @@
 	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
 		<property name="securityManager" ref="securityManager" />
 		<property name="loginUrl" value="/login" />
+		<property name="successUrl" value="/index" />
 		<property name="filters">
 			<map>
 				<entry key="authc" value-ref="ssoFormAuthenticationFilter" />
+				<entry key="perms" value-ref="appPermissionFilter" />
 			</map>
 		</property>
 		<property name="filterChainDefinitions">

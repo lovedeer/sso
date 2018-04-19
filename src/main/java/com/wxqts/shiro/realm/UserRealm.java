@@ -41,7 +41,7 @@ public class UserRealm extends AuthorizingRealm {
 	@Override
 	protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
 		if (logger.isDebugEnabled()) {
-			logger.debug("用户登录认证");
+			logger.debug("*****用户登录认证*****");
 		}
 		String username = token.getPrincipal().toString();
 		if (logger.isDebugEnabled()) {

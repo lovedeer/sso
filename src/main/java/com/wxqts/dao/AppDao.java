@@ -33,8 +33,8 @@ public interface AppDao {
 	/**
 	 * 根据用户Id查找允许访问的所有应用集合
 	 * 
-	 * @param userId
-	 *            用户Id
+	 * @param username
+	 *            用户名
 	 * @return 应用集合
 	 */
 	List<String> getAppUrlByUsername(@Param("username") String username);

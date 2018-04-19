@@ -14,46 +14,43 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.wxqts.constant.SsoConstants;
 import com.wxqts.domain.User;
 import com.wxqts.service.UserService;
 
 @Controller
 public class SsoController {
-	private static final Logger log = LoggerFactory.getLogger(SsoController.class);
+	private static final Logger logger = LoggerFactory.getLogger(SsoController.class);
 
-	@Autowired
-	private UserService userService;
-
-	@RequestMapping(value = "/test", method = RequestMethod.GET)
+	@RequestMapping(value = "/app", method = RequestMethod.GET)
 	public String test(HttpServletRequest req, Model model) {
-		String username = req.getParameter("username");
-		String password = req.getParameter("passwd");
-		User user = null;
-		user = userService.getUserByUsername(username);
-		if (user != null && user.getPassword().equals(password)) {
-			model.addAttribute("user", user);
-			log.debug("user :" + user);
-			return "index";
+		// request含有无权限访问应用标志属性时返回主页
+		if (req.getAttribute(SsoConstants.NO_PERMIT_KEY) != null) {
+			return SsoConstants.ON_SUCCESS_URL;
 		}
-		model.addAttribute("errorMsg", "用户名或密码错误！");
-		return "index";
+		// 跳转到应用
+		StringBuilder appUrl = new StringBuilder();
+		appUrl.append(req.getParameter(SsoConstants.REDIRECT_APP_URL_KEY));
+		appUrl.append("?").append(SsoConstants.USER_SESSION_KEY).append("=");
+		appUrl.append(req.getSession().getAttribute(SsoConstants.USER_SESSION_KEY).toString());
+		return "redirect:" + appUrl.toString();
 	}
 
-	@RequestMapping(value = "/login")
+	@RequestMapping(value = SsoConstants.LOGIN_URL)
 	public String redirectLogin(HttpServletRequest req, Model model) {
-		if (req.getSession().getAttribute("username") != null) {
-			String username = req.getSession().getAttribute("username").toString();
-			model.addAttribute("username", username);
-			return "redirect:/index";
+		if (req.getSession().getAttribute(SsoConstants.USER_SESSION_KEY) != null) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("用户已登录 ，跳转到成功页面:" + SsoConstants.ON_SUCCESS_URL);
+			}
+			return "redirect:" + SsoConstants.ON_SUCCESS_URL;
 		}
-		return "login";
+		// 未登录，跳转到登录页面
+		return SsoConstants.LOGIN_URL.substring(1);
 	}
 
-	@RequestMapping(value = "index")
+	@RequestMapping(value = SsoConstants.ON_SUCCESS_URL)
 	public String index(HttpServletRequest req, Model model) {
-		String username = req.getParameter("username");
-		model.addAttribute("username", username);
-		return "index";
+		return SsoConstants.ON_SUCCESS_URL.substring(1);
 	}
 
 }
