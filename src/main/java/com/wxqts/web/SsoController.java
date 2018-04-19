@@ -44,7 +44,7 @@ public class SsoController {
 		if (req.getSession().getAttribute("username") != null) {
 			String username = req.getSession().getAttribute("username").toString();
 			model.addAttribute("username", username);
-			return "index";
+			return "redirect:/index";
 		}
 		return "login";
 	}

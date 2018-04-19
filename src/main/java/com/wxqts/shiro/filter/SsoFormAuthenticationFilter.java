@@ -2,6 +2,7 @@ package com.wxqts.shiro.filter;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -36,6 +37,7 @@ public class SsoFormAuthenticationFilter extends FormAuthenticationFilter {
 			// 用户允许访问的应用权限认证
 			subject.checkPermission(appUrl);
 			setSuccessUrl(appUrl + "?username=" + token.getPrincipal().toString());
+			((HttpServletRequest) request).getSession().setAttribute("username", token.getPrincipal().toString());
 			return onLoginSuccess(token, subject, request, response);
 		} catch (AuthenticationException e) {
 			if (logger.isDebugEnabled()) {
