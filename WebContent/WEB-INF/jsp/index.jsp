@@ -5,9 +5,11 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script src="js/jquery-3.2.1.js"></script>
 <title>index</title>
 </head>
 <body>
+	${errorMsg}
 	<div id="title">
 		<h1>综合平台</h1>
 	</div>
@@ -46,4 +48,5 @@ table {
 	margin: auto;
 }
 </style>
+
 </html>

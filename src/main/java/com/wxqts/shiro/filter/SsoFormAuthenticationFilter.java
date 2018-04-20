@@ -1,7 +1,5 @@
 package com.wxqts.shiro.filter;
 
-import java.net.URL;
-
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -18,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.wxqts.constant.SsoConstants;
+import com.wxqts.jwt.JwtUtil;
+import com.wxqts.jwt.UserSubject;
 
 /**
  * @author zhoulong E-mail:zhoulong1588@163.com
@@ -29,13 +29,13 @@ public class SsoFormAuthenticationFilter extends FormAuthenticationFilter {
 
 	@Override
 	protected boolean executeLogin(ServletRequest request, ServletResponse response) throws Exception {
-		boolean checkPermission = false;
-		SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(request);
+		boolean needCheckPermission = false;
+		SavedRequest savedRequest = WebUtils.getSavedRequest(request);
 
 		// 检查保存的请求地址是否要检查权限
 		if (savedRequest != null && savedRequest.getMethod().equalsIgnoreCase(AccessControlFilter.GET_METHOD)) {
 			if (needPermissionCheck(savedRequest)) {
-				checkPermission = true;
+				needCheckPermission = true;
 			}
 			if (logger.isDebugEnabled()) {
 				logger.debug("saved request url: " + savedRequest.getRequestUrl());
@@ -44,53 +44,61 @@ public class SsoFormAuthenticationFilter extends FormAuthenticationFilter {
 
 		AuthenticationToken token = createToken(request, response);
 		if (token == null) {
-			throw new IllegalStateException("createToken failed");
+			throw new IllegalStateException("create AuthenticationToken failed");
 		}
 		try {
 			Subject subject = getSubject(request, response);
 			// 用户名与密码认证
 			subject.login(token);
+			// 用户名写进session
+			((HttpServletRequest) request).getSession().setAttribute(SsoConstants.USER_SESSION_KEY,
+					token.getPrincipal().toString());
 			// 检查应用访问权限
-			if (checkPermission) {
+			if (needCheckPermission) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("*****用户权限验证*****");
 				}
 				String redirectUrlKey = SsoConstants.REDIRECT_APP_URL_KEY + "=";
 				subject.checkPermission(savedRequest.getQueryString().substring(redirectUrlKey.length()));
 			}
-			// 用户名写进session
-			((HttpServletRequest) request).getSession().setAttribute(SsoConstants.USER_SESSION_KEY,
-					token.getPrincipal().toString());
 			return onLoginSuccess(token, subject, request, response);
 		} catch (AuthenticationException e) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("wrong username or password");
 			}
-			return onLoginFailure(token, e, request, response);
+			return onFailure(e, request);
 		} catch (AuthorizationException e) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("no permit");
 			}
-			throw e;
+			return onFailure(e, request);
+		} catch (Exception e) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("exception :" + e.getMessage());
+			}
+			return onFailure(e, request);
 		}
 	}
 
 	@Override
 	protected boolean onLoginSuccess(AuthenticationToken token, Subject subject, ServletRequest request,
 			ServletResponse response) throws Exception {
+		if (logger.isDebugEnabled()) {
+			logger.debug("*****登录成功*****");
+		}
 		String successUrl = null;
 		String fallbackUrl = getSuccessUrl();
 		boolean contextRelative = true;
 		SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(request);
 		// 若有保存的请求地址，则跳转到该地址，否则跳转到预定义的成功地址
 		if (savedRequest != null && savedRequest.getMethod().equalsIgnoreCase(AccessControlFilter.GET_METHOD)) {
-			String username = ((HttpServletRequest) request).getSession().getAttribute(SsoConstants.USER_SESSION_KEY)
-					.toString();
+
+			String jwtToken = createToken(request);
 			// 形如redirect=
 			String redirectUrlKey = SsoConstants.REDIRECT_APP_URL_KEY + "=";
 			// 跳转地址带上用户名参数
 			successUrl = savedRequest.getQueryString().substring(redirectUrlKey.length()) + "?"
-					+ SsoConstants.USER_SESSION_KEY + username;
+					+ SsoConstants.TOKEN_NAME + "=" + jwtToken;
 			contextRelative = false;
 		}
 
@@ -125,4 +133,22 @@ public class SsoFormAuthenticationFilter extends FormAuthenticationFilter {
 		return true;
 	}
 
+	/**
+	 * 登录或者权限验证失败后request设置失败异常属性
+	 * 
+	 * @param e
+	 * @param request
+	 * @return true 返回true让过滤器链继续，让controller处理异常
+	 */
+	protected boolean onFailure(Exception e, ServletRequest request) {
+		request.setAttribute(getFailureKeyAttribute(), e);
+		return true;
+	}
+
+	protected String createToken(ServletRequest request) {
+		UserSubject uSubject = new UserSubject();
+		uSubject.setUsername(
+				((HttpServletRequest) request).getSession().getAttribute(SsoConstants.USER_SESSION_KEY).toString());
+		return JwtUtil.createToken(uSubject);
+	}
 }

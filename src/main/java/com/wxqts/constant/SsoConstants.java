@@ -30,4 +30,38 @@ public class SsoConstants {
 	 */
 	public static final String NO_PERMIT_KEY = "noPermit";
 
+	/**
+	 * 错误信息的键名
+	 */
+	public static final String ERROR_MSG_KEY = "errorMsg";
+
+	/**
+	 * 返回成功字符串
+	 */
+	public static final String ON_SUCCESS = "success";
+
+	/**
+	 * 返回错误字符串
+	 */
+	public static final String ON_FAIL = "fail";
+
+	/**
+	 * token键名
+	 */
+	public static final String TOKEN_NAME = "token";
+
+	/**
+	 * 加密密钥
+	 */
+	public static final String SECRET = "secret";
+
+	/**
+	 * token过期键名
+	 */
+	public static final String EXPIRE = "exp";
+
+	/**
+	 * token 中的payload键名
+	 */
+	public static final String PAYLOAD = "payload";
 }
