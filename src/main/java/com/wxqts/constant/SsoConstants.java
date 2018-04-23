@@ -64,4 +64,15 @@ public class SsoConstants {
 	 * token 中的payload键名
 	 */
 	public static final String PAYLOAD = "payload";
+
+	/**
+	 * token cache键名
+	 */
+	public static final String TOKEN_CACHE = "tokenCache";
+
+	/**
+	 * 密码散列算法
+	 */
+	public static final String ALGORITHM_NAME = "SHA-256";
+	
 }

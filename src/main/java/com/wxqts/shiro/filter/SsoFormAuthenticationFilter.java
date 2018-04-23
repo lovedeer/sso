@@ -2,8 +2,7 @@ package com.wxqts.shiro.filter;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authz.AuthorizationException;
@@ -14,10 +13,11 @@ import org.apache.shiro.web.util.SavedRequest;
 import org.apache.shiro.web.util.WebUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wxqts.constant.SsoConstants;
 import com.wxqts.jwt.JwtUtil;
-import com.wxqts.jwt.UserSubject;
+import com.wxqts.service.TokenService;
 
 /**
  * @author zhoulong E-mail:zhoulong1588@163.com
@@ -26,6 +26,8 @@ import com.wxqts.jwt.UserSubject;
 public class SsoFormAuthenticationFilter extends FormAuthenticationFilter {
 	private static final Logger logger = LoggerFactory.getLogger(SsoFormAuthenticationFilter.class);
 	private static final String[] NO_CHECK_URL = { SsoConstants.LOGIN_URL, SsoConstants.ON_SUCCESS_URL };
+	@Autowired
+	private TokenService tokenService;
 
 	@Override
 	protected boolean executeLogin(ServletRequest request, ServletResponse response) throws Exception {
@@ -50,9 +52,9 @@ public class SsoFormAuthenticationFilter extends FormAuthenticationFilter {
 			Subject subject = getSubject(request, response);
 			// 用户名与密码认证
 			subject.login(token);
-			// 用户名写进session
-			((HttpServletRequest) request).getSession().setAttribute(SsoConstants.USER_SESSION_KEY,
-					token.getPrincipal().toString());
+//			// 用户名写进session
+//			((HttpServletRequest) request).getSession().setAttribute(SsoConstants.USER_SESSION_KEY,
+//					token.getPrincipal().toString());
 			// 检查应用访问权限
 			if (needCheckPermission) {
 				if (logger.isDebugEnabled()) {
@@ -88,12 +90,11 @@ public class SsoFormAuthenticationFilter extends FormAuthenticationFilter {
 		}
 		String successUrl = null;
 		String fallbackUrl = getSuccessUrl();
+		String jwtToken = JwtUtil.createToken();
 		boolean contextRelative = true;
 		SavedRequest savedRequest = WebUtils.getAndClearSavedRequest(request);
 		// 若有保存的请求地址，则跳转到该地址，否则跳转到预定义的成功地址
 		if (savedRequest != null && savedRequest.getMethod().equalsIgnoreCase(AccessControlFilter.GET_METHOD)) {
-
-			String jwtToken = createToken(request);
 			// 形如redirect=
 			String redirectUrlKey = SsoConstants.REDIRECT_APP_URL_KEY + "=";
 			// 跳转地址带上用户名参数
@@ -111,7 +112,8 @@ public class SsoFormAuthenticationFilter extends FormAuthenticationFilter {
 					+ "successUrlFallback method parameter. One of these must be non-null for "
 					+ "issueSuccessRedirect() to work.");
 		}
-
+		// 保存token进缓存
+		tokenService.saveToken(SsoConstants.TOKEN_CACHE, SecurityUtils.getSubject().getSession().getId(), jwtToken);
 		WebUtils.issueRedirect(request, response, successUrl, null, contextRelative);
 		return false;
 	}
@@ -143,12 +145,5 @@ public class SsoFormAuthenticationFilter extends FormAuthenticationFilter {
 	protected boolean onFailure(Exception e, ServletRequest request) {
 		request.setAttribute(getFailureKeyAttribute(), e);
 		return true;
-	}
-
-	protected String createToken(ServletRequest request) {
-		UserSubject uSubject = new UserSubject();
-		uSubject.setUsername(
-				((HttpServletRequest) request).getSession().getAttribute(SsoConstants.USER_SESSION_KEY).toString());
-		return JwtUtil.createToken(uSubject);
 	}
 }

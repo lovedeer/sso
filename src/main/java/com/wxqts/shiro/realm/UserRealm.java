@@ -1,5 +1,8 @@
 package com.wxqts.shiro.realm;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -9,6 +12,7 @@ import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.authz.UnauthenticatedException;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.util.ByteSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,13 +53,16 @@ public class UserRealm extends AuthorizingRealm {
 		}
 		User user = userService.getUserByUsername(username);
 		if (user != null) {
-			String password = new String((char[]) token.getCredentials());
+			String password = user.getPassword();
 			if (logger.isDebugEnabled()) {
 				logger.debug("password: " + password);
 			}
-			if (user.getPassword().equals(password)) {
-				return new SimpleAuthenticationInfo(username, password, "userRealm");
-			}
+			List<Object> principals = new ArrayList<Object>();
+			principals.add(username);
+			principals.add(user);
+			// salt = username + userId
+			return new SimpleAuthenticationInfo(principals, password, ByteSource.Util.bytes(user.getCredentialsSalt()),
+					"userRealm");
 		}
 
 		throw new UnauthenticatedException();

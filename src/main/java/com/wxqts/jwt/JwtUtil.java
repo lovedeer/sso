@@ -3,6 +3,10 @@ package com.wxqts.jwt;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.PrincipalCollection;
+import org.apache.shiro.subject.Subject;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +20,7 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.wxqts.constant.SsoConstants;
+import com.wxqts.domain.User;
 
 /**
  * @author zhoulong E-mail:zhoulong@163.com
@@ -52,7 +57,23 @@ public class JwtUtil {
 				logger.debug("create token failed :" + e.getMessage());
 			}
 		}
+		if (logger.isDebugEnabled()) {
+			logger.debug(token);
+		}
 		return token;
+	}
+
+	/**
+	 * 根据subject中的principal生成bean，用来生成token
+	 * 
+	 * @return token
+	 */
+	public static String createToken() {
+		Subject subject = SecurityUtils.getSubject();
+		PrincipalCollection principalCollection = subject.getPrincipals();
+		User user = principalCollection.oneByType(User.class);
+		UserSubject uSubject = new UserSubject(user);
+		return JwtUtil.createToken(uSubject);
 	}
 
 	/**
@@ -115,4 +136,5 @@ public class JwtUtil {
 		}
 		return true;
 	}
+
 }
