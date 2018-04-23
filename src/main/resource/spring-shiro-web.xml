@@ -89,6 +89,7 @@
 				/index = anon
 				/app = authc,perms
 				/login = authc
+				/rpc/* = anon
 			</value>
 		</constructor-arg>
 	</bean>

@@ -58,7 +58,7 @@ public class SsoConstants {
 	/**
 	 * token过期键名
 	 */
-	public static final String EXPIRE = "exp";
+	public static final String EXPIRE = "expire";
 
 	/**
 	 * token 中的payload键名

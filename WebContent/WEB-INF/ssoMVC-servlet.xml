@@ -11,7 +11,7 @@
 	<context:component-scan base-package="com.wxqts.web" />
 	<mvc:annotation-driven />
 
-	<mvc:default-servlet-handler/>
+	<mvc:default-servlet-handler />
 
 	<bean id="jsonConverter"
 		class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
@@ -36,9 +36,8 @@
 	<!-- 对模型视图名称的解析，在请求时模型视图名称添加前后缀 -->
 	<bean
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver"
-		p:prefix="/WEB-INF/jsp/" 
-		p:suffix=".jsp" />
-		
+		p:prefix="/WEB-INF/jsp/" p:suffix=".jsp" />
+
 	<bean id="multipartResolver"
 		class="org.springframework.web.multipart.commons.CommonsMultipartResolver"
 		p:defaultEncoding="utf-8" />

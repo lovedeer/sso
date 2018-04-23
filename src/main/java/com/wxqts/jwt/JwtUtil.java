@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.subject.Subject;
@@ -30,9 +31,9 @@ public class JwtUtil {
 	private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
 
 	/**
-	 * token有效期,毫秒，默认300秒
+	 * token有效期,毫秒，默认1800秒,即半小时
 	 */
-	private static int DEFAULT_MAXAGE = 300000;
+	private static int DEFAULT_MAXAGE = 1800000;
 
 	/**
 	 * 生成JWT类型的token
@@ -87,6 +88,9 @@ public class JwtUtil {
 	 * @return 返回解密后的对象 - 如果token过期返回空对象
 	 */
 	public static <T> T unsign(String token, Class<T> classT) {
+		if (StringUtils.isEmpty(token)) {
+			return null;
+		}
 		JWTVerifier verifier = null;
 		try {
 			verifier = JWT.require(Algorithm.HMAC256(SsoConstants.SECRET)).build();
@@ -98,6 +102,7 @@ public class JwtUtil {
 				return JSON.parseObject(json, classT);
 			}
 		} catch (TokenExpiredException e) {
+			// 暂时不检查是否过期，token由缓存有效期控制
 			if (logger.isDebugEnabled()) {
 				logger.debug("token expired");
 			}
@@ -119,7 +124,10 @@ public class JwtUtil {
 	 * @param token
 	 * @return token是否正确
 	 */
-	public boolean verify(String token) {
+	public static boolean verify(String token) {
+		if (StringUtils.isEmpty(token)) {
+			return false;
+		}
 		JWTVerifier verifier = null;
 		try {
 			verifier = JWT.require(Algorithm.HMAC256(SsoConstants.SECRET)).build();
