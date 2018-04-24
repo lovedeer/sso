@@ -45,7 +45,8 @@ public class SsoController {
 		// 跳转到应用,若token不存在，生成token
 		String token = tokenService.getToken("tokenCache", SecurityUtils.getSubject().getSession().getId(),
 				String.class);
-		if (token == null) {
+		// 若token不存在或者已过期，重新生成token
+		if (token == null || !JwtUtil.verify(token)) {
 			token = JwtUtil.createToken();
 			// 保存token进缓存
 			tokenService.saveToken(SsoConstants.TOKEN_CACHE, SecurityUtils.getSubject().getSession().getId(), token);
@@ -61,7 +62,7 @@ public class SsoController {
 	public String redirectLogin(HttpServletRequest req, Model model, RedirectAttributes attr) {
 		Exception exception = (Exception) req
 				.getAttribute(SsoFormAuthenticationFilter.DEFAULT_ERROR_KEY_ATTRIBUTE_NAME);
-		// 若request中标志了异常，则处理
+		// 若request中标记了异常，则处理
 		if (exception != null) {
 			if (exception instanceof AuthenticationException) {
 				model.addAttribute(SsoConstants.ERROR_MSG_KEY, "用户名或密码错误");

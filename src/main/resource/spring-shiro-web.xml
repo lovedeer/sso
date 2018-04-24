@@ -18,7 +18,7 @@
 	<bean id="sessionIdCookie" class="org.apache.shiro.web.servlet.SimpleCookie">
 		<constructor-arg value="sid" />
 		<property name="httpOnly" value="true" />
-		<property name="maxAge" value="-1800" />
+		<property name="maxAge" value="1800" />
 	</bean>
 
 	<!-- 会话验证调度器 -->

@@ -102,7 +102,6 @@ public class JwtUtil {
 				return JSON.parseObject(json, classT);
 			}
 		} catch (TokenExpiredException e) {
-			// 暂时不检查是否过期，token由缓存有效期控制
 			if (logger.isDebugEnabled()) {
 				logger.debug("token expired");
 			}
